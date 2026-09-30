@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scrum — esquema completo interactivo</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: #fff;
+  }
+  .scrum-wrap {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .scrum-wrap svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+</style>
+</head>
+<body>
+<div class="scrum-wrap">
+<svg viewBox="0 0 1400 800" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="scrumTitle scrumDesc" style="display:block;width:100%;height:auto;">
+<desc id="scrumDesc">Esquema interactivo del proceso Scrum con responsabilidades, eventos, artefactos, compromisos y refinamiento.</desc>
+<style>
+:root{
+ --text:#1f2937;--muted:#5b6b82;--line:#94a3b8;--panel:#f8fafc;
+ --role:#2563eb;--event:#d97706;--artifact:#059669;--activity:#7c3aed;
+}
+text{font-family:Arial,Helvetica,sans-serif}
+.h1{font-size:31px;font-weight:700;fill:var(--text)}
+.sub{font-size:15px;fill:var(--muted)}
+.label{font-size:17px;font-weight:700;fill:var(--text)}
+.small{font-size:13px;fill:var(--muted)}
+.commit{font-size:13px;font-weight:700;fill:var(--artifact)}
+.legend{font-size:13px;font-weight:600;fill:var(--text)}
+.box{fill:var(--panel);stroke-width:3}
+.role{stroke:var(--role)} .event{stroke:var(--event)}
+.artifact{stroke:var(--artifact)} .activity{stroke:var(--activity);stroke-dasharray:8 5}
+.flow{fill:none;stroke:var(--line);stroke-width:2.5;marker-end:url(#arrow)}
+.secondary{fill:none;stroke:#667085;stroke-width:2.4;marker-end:url(#arrow)}
+.refine{fill:none;stroke:var(--activity);stroke-width:2.4;stroke-dasharray:8 6;marker-end:url(#arrowPurple)}
+.hit{fill:#fff;fill-opacity:0;stroke:none;cursor:help;pointer-events:all}
+.tip{opacity:0;pointer-events:none;transition:opacity .05s linear}
+.hit:hover + .tip,.hit:focus + .tip{opacity:1}
+.tipbox{fill:#111827;stroke:#111827;stroke-width:1}
+.tiptitle{font-size:14px;font-weight:700;fill:#fff}
+.tiptext{font-size:13px;fill:#fff}
+</style>
+
+<defs>
+ <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+  <path d="M0,0 L0,6 L9,3 z" fill="#94a3b8"/>
+ </marker>
+ <marker id="arrowPurple" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+  <path d="M0,0 L0,6 L9,3 z" fill="#7c3aed"/>
+ </marker>
+</defs>
+
+<rect width="1400" height="800" fill="#fff"/>
+<text id="scrumTitle" x="35" y="45" class="h1">Proceso Scrum</text>
+<text x="35" y="70" class="sub">Eventos, artefactos, responsabilidades, compromisos y Refinamiento del Product Backlog</text>
+
+<!-- Leyenda -->
+<circle cx="920" cy="38" r="7" fill="none" stroke="#2563eb" stroke-width="3"/><text x="934" y="43" class="legend">Responsabilidades</text>
+<circle cx="1070" cy="38" r="7" fill="none" stroke="#d97706" stroke-width="3"/><text x="1084" y="43" class="legend">Eventos</text>
+<circle cx="1155" cy="38" r="7" fill="none" stroke="#059669" stroke-width="3"/><text x="1169" y="43" class="legend">Artefactos</text>
+<circle cx="1255" cy="38" r="7" fill="none" stroke="#7c3aed" stroke-width="3"/><text x="1269" y="43" class="legend">Actividad</text>
+
+<!-- RESPONSABILIDADES, con espacio propio -->
+<rect class="box role" x="55" y="115" rx="15" width="190" height="78"/>
+<text x="150" y="146" text-anchor="middle" class="label">Product Owner (PO)</text>
+<text x="150" y="170" text-anchor="middle" class="small">Maximiza el valor</text>
+
+<rect class="box role" x="275" y="115" rx="15" width="190" height="78"/>
+<text x="370" y="146" text-anchor="middle" class="label">Scrum Master (SM)</text>
+<text x="370" y="170" text-anchor="middle" class="small">Ayuda a aplicar Scrum</text>
+
+<rect class="box role" x="495" y="115" rx="15" width="190" height="78"/>
+<text x="590" y="146" text-anchor="middle" class="label">Developers (DEV)</text>
+<text x="590" y="170" text-anchor="middle" class="small">Crean el Incremento</text>
+
+
+  <!-- STAKEHOLDERS: fuera del Scrum Team -->
+  <rect x="735" y="115" rx="15" width="235" height="78"
+        fill="#f8fafc" stroke="#64748b" stroke-width="3"
+        stroke-dasharray="7 5"></rect>
+  <text x="852" y="143" text-anchor="middle" class="label">Stakeholders (STK)</text>
+  <text x="852" y="166" text-anchor="middle" class="small">Interesados</text>
+  <text x="852" y="184" text-anchor="middle" class="small">fuera del Scrum Team</text>
+
+<!-- FLECHAS DEL FLUJO, pintadas antes de las cajas -->
+
+
+
+
+
+<!-- Sprint Planning → Sprint Backlog.
+     La punta termina antes del borde izquierdo para que no quede oculta por la caja. -->
+<path d="M402 315
+         C410 275 485 242 548 242"
+      fill="none" stroke="#667085" stroke-width="2.4"
+      marker-end="url(#arrow)"/>
+
+<!-- Daily Scrum: ciclo repetido dentro del Sprint -->
+<path d="M640 462
+         C640 442 656 426 676 426
+         C696 426 712 442 712 462
+         C712 482 696 498 676 498
+         C656 498 640 482 640 462
+         C640 452 644 444 651 438"
+      fill="none" stroke="#667085" stroke-width="2.4"
+      marker-end="url(#arrow)"/>
+
+<!-- Stakeholders → Sprint Review: relación externa -->
+<path d="M852 193 C980 215 1110 250 1190 305"
+      fill="none" stroke="#64748b" stroke-width="2"
+      stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+
+<path class="flow" d="M225 365 H320"/>
+<path class="flow" d="M485 365 H565"/>
+<path class="flow" d="M755 365 H845"/>
+<path class="flow" d="M1015 365 H1105"/>
+<path class="secondary" d="M1200 420 C1200 455 1200 470 1200 495"/>
+<!-- Retrospective → siguiente Sprint Planning. Rodea Daily Scrum por debajo. -->
+<path class="secondary" d="M1090 575
+ C1015 650 930 700 800 710
+ C650 722 505 700 430 640
+ C385 604 370 540 385 425"/>
+
+<path class="secondary" d="M660 275 V305"/>
+
+<!-- Bucle de refinamiento: sale y vuelve al Product Backlog -->
+<path class="refine" d="M105 425
+ C42 455 18 485 20 535
+ C22 615 92 650 185 642
+ C285 634 345 585 342 520
+ C339 472 278 444 205 420"/>
+
+   <!-- ARTEFACTOS / EVENTOS -->
+<rect class="box artifact" x="55" y="310" rx="16" width="170" height="115"/>
+<text x="140" y="347" text-anchor="middle" class="label">Product</text>
+<text x="140" y="369" text-anchor="middle" class="label">Backlog</text>
+<text x="140" y="399" text-anchor="middle" class="commit">Product Goal</text>
+
+<rect class="box event" x="320" y="315" rx="16" width="165" height="105"/>
+<text x="402" y="351" text-anchor="middle" class="label">Sprint</text>
+<text x="402" y="374" text-anchor="middle" class="label">Planning</text>
+<text x="402" y="393" text-anchor="middle" class="small">PO · SM · DEV</text>
+   <text x="402" y="412" text-anchor="middle" class="small">hasta 8 h*</text>
+
+<rect class="box artifact" x="565" y="210" rx="16" width="190" height="65"/>
+<text x="660" y="238" text-anchor="middle" class="label">Sprint Backlog</text>
+<text x="660" y="260" text-anchor="middle" class="commit">Sprint Goal</text>
+
+<rect class="box event" x="565" y="305" rx="18" width="190" height="120"/>
+<text x="660" y="342" text-anchor="middle" class="label" style="font-size:22px">SPRINT</text>
+<text x="660" y="368" text-anchor="middle" class="small">Recomendado: 2–4 semanas</text>
+<text x="660" y="390" text-anchor="middle" class="small">Crear valor · inspeccionar</text>
+<text x="660" y="409" text-anchor="middle" class="small">y adaptar</text>
+
+<ellipse class="box event" cx="660" cy="555" rx="95" ry="50"/>
+<text x="660" y="550" text-anchor="middle" class="label">Daily Scrum</text>
+<text x="660" y="575" text-anchor="middle" class="small">15 min · Developers</text>
+
+<rect class="box artifact" x="845" y="310" rx="16" width="170" height="115"/>
+<text x="930" y="354" text-anchor="middle" class="label">Incremento</text>
+<text x="930" y="382" text-anchor="middle" class="commit">Definition</text>
+<text x="930" y="400" text-anchor="middle" class="commit">of Done</text>
+
+<rect class="box event" x="1105" y="315" rx="16" width="190" height="105"/>
+<text x="1200" y="351" text-anchor="middle" class="label">Sprint Review</text>
+<text x="1200" y="379" text-anchor="middle" class="small">PO · SM · DEV · STK</text>
+   <text x="1200" y="399" text-anchor="middle" class="small">hasta 4 h*</text>
+
+<rect class="box event" x="1090" y="495" rx="16" width="220" height="120"/>
+<text x="1200" y="536" text-anchor="middle" class="label">Sprint Retrospective</text>
+<text x="1200" y="566" text-anchor="middle" class="small">Mejorar la calidad</text>
+<text x="1200" y="579" text-anchor="middle" class="small">PO · SM · DEV</text>
+   <text x="1200" y="598" text-anchor="middle" class="small">hasta 3 h*</text>
+
+<rect class="box activity" x="35" y="505" rx="16" width="285" height="105"/>
+<text x="177" y="541" text-anchor="middle" class="label" style="font-size:15px">Refinamiento del Product Backlog</text>
+<text x="177" y="567" text-anchor="middle" class="small">Descomponer y concretar elementos</text>
+<text x="177" y="590" text-anchor="middle" class="small">Actividad continua · no es un evento</text>
+
+<!-- Mensaje inferior -->
+<text x="55" y="755" class="small">Pasa el puntero por un elemento para ver su definición.</text>
+
+<!--
+ CAPA INTERACTIVA FINAL.
+ Está por encima de TODO el diagrama. No hay elementos <title>,
+ por lo que el navegador no mostrará el tooltip blanco retardado.
+-->
+
+<!-- Product Owner -->
+<rect class="hit" tabindex="0" x="55" y="115" width="190" height="78"/>
+<g class="tip">
+ <rect class="tipbox" x="45" y="205" rx="10" width="330" height="72"/>
+ <text x="60" y="229" class="tiptitle">Product Owner</text>
+ <text x="60" y="251" class="tiptext">Maximiza el valor y gestiona eficazmente</text>
+ <text x="60" y="269" class="tiptext">el Product Backlog.</text>
+</g>
+
+<!-- Scrum Master -->
+<rect class="hit" tabindex="0" x="275" y="115" width="190" height="78"/>
+<g class="tip">
+ <rect class="tipbox" x="275" y="205" rx="10" width="350" height="72"/>
+ <text x="290" y="229" class="tiptitle">Scrum Master</text>
+ <text x="290" y="251" class="tiptext">Ayuda a comprender y aplicar Scrum y a</text>
+ <text x="290" y="269" class="tiptext">mejorar la eficacia del Scrum Team.</text>
+</g>
+
+<!-- Developers -->
+<rect class="hit" tabindex="0" x="495" y="115" width="190" height="78"/>
+<g class="tip">
+ <rect class="tipbox" x="505" y="205" rx="10" width="350" height="72"/>
+ <text x="520" y="229" class="tiptitle">Developers</text>
+ <text x="520" y="251" class="tiptext">Crean un Incremento utilizable y adaptan</text>
+ <text x="520" y="269" class="tiptext">su plan para alcanzar el Sprint Goal.</text>
+</g>
+
+
+  <!-- Stakeholders -->
+  <rect class="hit" tabindex="0" x="735" y="115" width="235" height="78"></rect>
+  <g class="tip">
+    <rect class="tipbox" x="725" y="205" rx="10" width="455" height="82"></rect>
+    <text x="740" y="229" class="tiptitle">Stakeholders (STK)</text>
+    <text x="740" y="251" class="tiptext">Personas interesadas en el producto; no forman parte</text>
+    <text x="740" y="269" class="tiptext">del Scrum Team. Participan especialmente en la Sprint Review.</text>
+  </g>
+
+<!-- Product Backlog -->
+<rect class="hit" tabindex="0" x="55" y="310" width="170" height="115"/>
+<g class="tip">
+ <rect class="tipbox" x="35" y="205" rx="10" width="350" height="82"/>
+ <text x="50" y="229" class="tiptitle">Product Backlog</text>
+ <text x="50" y="251" class="tiptext">Lista ordenada y emergente de lo necesario</text>
+ <text x="50" y="269" class="tiptext">para mejorar el producto. Compromiso: Product Goal.</text>
+</g>
+
+<!-- Planning -->
+<rect class="hit" tabindex="0" x="320" y="315" width="165" height="105"/>
+<g class="tip">
+ <rect class="tipbox" x="300" y="435" rx="10" width="410" height="82"/>
+ <text x="315" y="459" class="tiptitle">Sprint Planning</text>
+ <text x="315" y="481" class="tiptext">Inicia el Sprint: se decide por qué es valioso,</text>
+ <text x="315" y="499" class="tiptext">qué puede hacerse y cómo se realizará el trabajo.</text>
+</g>
+
+<!-- Sprint Backlog -->
+<rect class="hit" tabindex="0" x="565" y="210" width="190" height="65"/>
+<g class="tip">
+ <rect class="tipbox" x="570" y="90" rx="10" width="390" height="82"/>
+ <text x="585" y="114" class="tiptitle">Sprint Backlog</text>
+ <text x="585" y="136" class="tiptext">Sprint Goal + elementos seleccionados del Product</text>
+ <text x="585" y="154" class="tiptext">Backlog + plan de trabajo.</text>
+</g>
+
+<!-- Sprint -->
+<rect class="hit" tabindex="0" x="565" y="305" width="190" height="120"/>
+<g class="tip">
+ <rect class="tipbox" x="555" y="435" rx="10" width="365" height="82"/>
+ <text x="570" y="459" class="tiptitle">Sprint</text>
+ <text x="570" y="481" class="tiptext">Contenedor de los demás eventos. Durante un mes</text>
+ <text x="570" y="499" class="tiptext">o menos se crean Incrementos de valor.</text>
+</g>
+
+<!-- Daily -->
+<ellipse class="hit" tabindex="0" cx="660" cy="555" rx="95" ry="50"/>
+<g class="tip">
+ <rect class="tipbox" x="545" y="620" rx="10" width="390" height="82"/>
+ <text x="560" y="644" class="tiptitle">Daily Scrum</text>
+ <text x="560" y="666" class="tiptext">15 minutos para inspeccionar el progreso hacia el</text>
+ <text x="560" y="684" class="tiptext">Sprint Goal y adaptar el Sprint Backlog.</text>
+</g>
+
+<!-- Incremento -->
+<rect class="hit" tabindex="0" x="845" y="310" width="170" height="115"/>
+<g class="tip">
+ <rect class="tipbox" x="815" y="205" rx="10" width="390" height="82"/>
+ <text x="830" y="229" class="tiptitle">Incremento</text>
+ <text x="830" y="251" class="tiptext">Resultado utilizable que acerca al Product Goal.</text>
+ <text x="830" y="269" class="tiptext">Debe cumplir la Definition of Done.</text>
+</g>
+
+<!-- Review -->
+<rect class="hit" tabindex="0" x="1105" y="315" width="190" height="105"/>
+<g class="tip">
+ <rect class="tipbox" x="1015" y="205" rx="10" width="350" height="82"/>
+ <text x="1030" y="229" class="tiptitle">Sprint Review</text>
+ <text x="1030" y="251" class="tiptext">Scrum Team e interesados inspeccionan el resultado</text>
+ <text x="1030" y="269" class="tiptext">y determinan posibles adaptaciones.</text>
+</g>
+
+<!-- Retrospective -->
+<rect class="hit" tabindex="0" x="1090" y="495" width="220" height="120"/>
+<g class="tip">
+ <rect class="tipbox" x="1000" y="630" rx="10" width="365" height="82"/>
+ <text x="1015" y="654" class="tiptitle">Sprint Retrospective</text>
+ <text x="1015" y="676" class="tiptext">El equipo analiza cómo aumentar la calidad y</text>
+ <text x="1015" y="694" class="tiptext">eficacia y planifica mejoras.</text>
+</g>
+
+
+
+<!-- Refinamiento -->
+<rect class="hit" tabindex="0" x="35" y="505" width="285" height="105"/>
+<g class="tip">
+ <rect class="tipbox" x="55" y="625" rx="10" width="430" height="82"/>
+ <text x="70" y="649" class="tiptitle">Refinamiento del Product Backlog</text>
+ <text x="70" y="671" class="tiptext">Actividad continua para descomponer y concretar</text>
+ <text x="70" y="689" class="tiptext">elementos del Product Backlog. No es un evento Scrum.</text>
+</g>
+</svg>
+</div>
+<script>
+(() => {
+  const hits = document.querySelectorAll('.hit');
+  hits.forEach(hit => {
+    hit.addEventListener('click', e => {
+      e.stopPropagation();
+      const wasActive = hit.classList.contains('active');
+      hits.forEach(h => h.classList.remove('active'));
+      if (!wasActive) hit.classList.add('active');
+    });
+  });
+  document.addEventListener('click', () => {
+    hits.forEach(h => h.classList.remove('active'));
+  });
+})();
+</script>
+
+<style>
+.study-complete{max-width:1400px;margin:14px auto 24px;padding:14px 18px;background:#fff;border:1px solid #d0d5dd;border-radius:12px;font-family:Arial,Helvetica,sans-serif;color:#1f2937}
+.study-complete h2{margin:0 0 10px;font-size:20px}.study-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.study-card{border:1px solid #98a2b3;border-radius:9px;padding:10px;background:#f9fafb}.study-card b{display:block;margin-bottom:4px}
+.study-note{margin-top:10px;font-size:13px;line-height:1.4;color:#475467}
+@media(max-width:800px){.study-grid{grid-template-columns:1fr}}
+</style>
+<div class="study-complete">
+<h2>Compromisos de los artefactos</h2>
+<div class="study-grid">
+<div class="study-card"><b>Product Backlog → Product Goal</b>Objetivo futuro del producto. Sirve de referencia para planificar el trabajo del Scrum Team.</div>
+<div class="study-card"><b>Sprint Backlog → Sprint Goal</b>Objetivo único del Sprint. El Sprint Backlog contiene además los elementos seleccionados y el plan para entregar el Incremento.</div>
+<div class="study-card"><b>Incremento → Definition of Done</b>Descripción formal del estado que debe alcanzar el Incremento para cumplir las medidas de calidad requeridas.</div>
+</div>
+<div class="study-note"><b>Refinamiento:</b> actividad continua de descomponer y concretar elementos del Product Backlog; no es uno de los cinco eventos Scrum. <b>Stakeholders:</b> son externos al Scrum Team y participan especialmente en la Sprint Review. Durante el Sprint pueden realizarse desarrollo, pruebas, documentación, refactorización, investigación, mantenimiento y aprendizaje necesarios para alcanzar el Sprint Goal y producir un Incremento que cumpla la Definition of Done.</div>
+</div>
+
+</body>
+</html>
