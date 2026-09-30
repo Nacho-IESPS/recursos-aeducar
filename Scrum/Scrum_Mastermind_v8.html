@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scrum Mastermind</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--ink:#1f2937;--muted:#667085;--line:#98a2b3;--dark:#344054;--ok:#15803d;--warn:#b45309;--bad:#b42318;--hint:#6941c6}
+*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
+main{max-width:1320px;margin:auto;padding:18px}h1{margin:0;font-size:30px}.lead{margin:5px 0 14px;color:var(--muted)}
+.panel{background:#fff;border:1px solid #d0d5dd;border-radius:12px;padding:13px;margin-bottom:12px}
+.rules{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}.rules p{margin:5px 0}.stats{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.badge{background:#eef2f6;border-radius:999px;padding:7px 11px;font-weight:700}.badge.hints{background:#f4ebff;color:#53389e}
+h2{font-size:16px;margin:0 0 8px}.bank{display:flex;flex-wrap:wrap;gap:7px;min-height:48px}
+.piece{background:#e5e7eb;border:2px solid #9ca3af;border-radius:8px;padding:7px 9px;font-weight:700;font-size:13px;cursor:grab;user-select:none}
+.piece.selected{outline:3px solid #344054}.piece.placed{opacity:.28}
+.defpiece{font-weight:400;max-width:310px;line-height:1.25}
+.boardwrap{overflow-x:auto}.board{position:relative;width:1120px;height:690px;background:#fff;border:1px solid #d0d5dd;border-radius:14px;overflow:hidden}
+svg{position:absolute;inset:0;width:1120px;height:690px;pointer-events:none}
+.slot{position:absolute;width:178px;min-height:146px;background:#f3f4f6;border:2px dashed #98a2b3;border-radius:12px;padding:7px;text-align:center}
+.slot.wide{width:265px}.slot.daily{border-radius:55px}
+.drop{min-height:31px;cursor:grab;background:#e5e7eb;border-radius:6px;padding:7px 4px;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.drop.empty{font-weight:400;color:#667085}
+.defdrop{margin-top:6px;cursor:grab;min-height:39px;background:#fff;border:1px dashed #b8bec7;border-radius:6px;padding:5px;font-size:10.5px;line-height:1.15;display:flex;align-items:center;justify-content:center}
+.defdrop.empty{color:#98a2b3}
+.actors{font-size:11px;margin-top:6px;display:flex;justify-content:center;gap:5px;flex-wrap:wrap}
+.timeRow{font-size:11px;margin-top:6px;white-space:nowrap}.time{width:38px;text-align:center;padding:3px;border:1px solid #98a2b3;border-radius:5px}
+button{border:0;border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer}.primary{background:#344054;color:white}.hintbtn{background:#7f56d9;color:#fff}.secondary{background:#e4e7ec}
+.actions{display:flex;gap:8px;margin:12px 0;flex-wrap:wrap}.result{display:none}.result.show{display:block}
+.hintbox{display:none;border-left:5px solid var(--hint);background:#f9f5ff}.hintbox.show{display:block}
+.hintbox b{color:#53389e}.small{font-size:12px;color:var(--muted)}
+#product{left:45px;top:260px}#planning{left:285px;top:260px}#sprint{left:510px;top:260px}#increment{left:735px;top:260px}
+#review{left:935px;top:260px}#sprintbacklog{left:510px;top:70px}#daily{left:510px;top:475px}
+#retro{left:920px;top:485px}#refine{left:25px;top:480px}
+</style>
+</head>
+<body><main>
+<h1>Scrum Mastermind</h1>
+<p class="lead">Reconstruid Scrum con el menor número posible de intentos y de pistas.</p>
+
+<div class="panel rules">
+<div>
+<h2>Reglas</h2>
+<p>1. Colocad los <b>9 conceptos</b> y sus <b>9 definiciones</b> en el diagrama.</p>
+<p>2. Solo en los eventos/Sprint indicad <b>participantes</b> y completad el <b>número</b> de su duración máxima.</p>
+<p>3. En <b>modo normal</b>, Comprobar separa los errores por categoría. En <b>modo difícil</b> solo indica el total de errores pendientes.</p>
+<p>4. Si os atascáis, podéis pedir una <b>pista adaptativa</b>. Siempre se referirá a un error que tengáis en ese momento, pero tendréis que deducir cómo corregirlo.</p>
+</div>
+<div class="stats">
+<span class="badge">Modo:
+<select id="mode" onchange="changeMode()" style="border:0;background:transparent;font-weight:700">
+<option value="normal">Normal</option>
+<option value="hard">Difícil (+100)</option>
+</select></span>
+<span class="badge">Intentos: <span id="attempts">0</span></span>
+<span class="badge hints">Pistas: <span id="hints">0</span></span>
+<span class="badge">Puntuación: <span id="points">1000</span></span>
+<p class="small">Objetivo: resolverlo con el menor número de intentos. Cada comprobación después de la primera cuesta 40 puntos; cada pista, 75. El modo difícil parte de 1100 puntos y solo indica el total de errores, sin separar categorías.</p>
+</div>
+</div>
+
+<div class="panel"><h2>Conceptos</h2><div id="conceptBank" class="bank"></div></div>
+<div class="panel"><h2>Definiciones — también están desordenadas</h2><div id="defBank" class="bank"></div></div>
+
+<div class="boardwrap"><div id="board" class="board">
+<svg viewBox="0 0 1120 690">
+<defs>
+<marker id="arr" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto">
+  <path d="M0,0 L0,8 L11,4z" fill="#667085"/>
+</marker>
+<marker id="retroArrow" markerWidth="12" markerHeight="12" refX="10" refY="4" orient="auto">
+  <path d="M0,0 L0,8 L11,4z" fill="#667085"/>
+</marker>
+</defs>
+<!-- flujo principal -->
+<path d="M223 333 H285" stroke="#667085" stroke-width="2.5" fill="none" marker-end="url(#arr)"/>
+<path d="M463 333 H510" stroke="#667085" stroke-width="2.5" fill="none" marker-end="url(#arr)"/>
+<path d="M688 333 H735" stroke="#667085" stroke-width="2.5" fill="none" marker-end="url(#arr)"/>
+<path d="M913 333 H935" stroke="#667085" stroke-width="2.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- Sprint Planning produce el Sprint Backlog -->
+<path d="M374 260 C395 175 455 140 510 140" stroke="#667085" stroke-width="2.5" fill="none" marker-end="url(#arr)"/>
+<!-- Sprint Backlog alimenta el Sprint -->
+<path d="M599 216 V260" stroke="#667085" stroke-width="2.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- Daily Scrum como ciclo dentro del Sprint -->
+<path d="M599 475
+         C535 468 514 424 530 397
+         C545 372 574 375 599 397
+         C624 375 653 372 668 397
+         C684 424 663 468 599 475"
+      stroke="#667085" stroke-width="2.5"
+      fill="none" marker-end="url(#arr)"/>
+
+<!-- Review conduce a Retrospective -->
+<path d="M1024 406 V485" stroke="#667085" stroke-width="2.5" fill="none" marker-end="url(#arr)"/>
+
+<!-- Retrospective conduce al siguiente Planning: recorrido inferior, sin tocar Daily -->
+<path d="M920 645
+         C820 690 620 700 490 675
+         C405 658 350 610 350 535
+         C350 475 365 438 380 420"
+      stroke="#667085" stroke-width="2.5"
+      fill="none" marker-end="url(#retroArrow)"/>
+
+<!-- Refinamiento: ciclo independiente sobre Product Backlog -->
+<path d="M105 406
+         C28 430 18 520 52 575
+         C95 625 245 610 270 545
+         C292 486 220 438 150 406"
+      stroke="#667085" stroke-width="2.5"
+      fill="none" marker-end="url(#arr)"/>
+</svg>
+</div></div>
+
+<div id="resumeNotice" class="panel" style="display:none;border-left:5px solid #1570ef">
+<b>Partida recuperada.</b> Se ha restaurado automáticamente el progreso guardado en este navegador.
+</div>
+<div class="actions">
+<button class="primary" onclick="checkGame()">Comprobar</button>
+<button class="hintbtn" onclick="giveHint()">Pedir pista (−75)</button>
+
+</div>
+<div id="result" class="panel result"></div>
+<div id="hintbox" class="panel hintbox"></div>
+<p class="small">PO = Product Owner · SM = Scrum Master · DEV = Developers · STK = Stakeholders.</p>
+</main>
+
+<script>
+const concepts=[
+["product","Product Backlog"],["planning","Sprint Planning"],["sprintbacklog","Sprint Backlog"],
+["sprint","Sprint"],["daily","Daily Scrum"],["increment","Incremento"],["review","Sprint Review"],
+["retro","Sprint Retrospective"],["refine","Refinamiento del Product Backlog"]
+];
+const defs=[
+["product","Lista ordenada y emergente de lo necesario para mejorar el producto."],
+["planning","Inicia el ciclo de trabajo: establece por qué es valioso, qué puede hacerse y cómo se realizará."],
+["sprintbacklog","Objetivo del ciclo + elementos seleccionados + plan para entregar el incremento."],
+["sprint","Contenedor de los demás eventos; durante él se transforma trabajo seleccionado en valor."],
+["daily","Inspección breve del progreso hacia el objetivo y adaptación del plan de trabajo."],
+["increment","Resultado utilizable que acerca al objetivo del producto y cumple la Definition of Done."],
+["review","Se inspecciona el resultado con los interesados y se determinan posibles adaptaciones futuras."],
+["retro","El equipo analiza cómo aumentar la calidad y la eficacia y planifica mejoras."],
+["refine","Actividad continua de descomponer y concretar elementos para que estén suficientemente preparados."]
+];
+const meta={
+planning:{actors:["PO","SM","DEV"],time:"8",unit:"h"},
+sprint:{actors:["PO","SM","DEV"],time:"4",unit:"semanas"},
+daily:{actors:["DEV"],time:"15",unit:"min"},
+review:{actors:["PO","SM","DEV","STK"],time:"4",unit:"h"},
+retro:{actors:["PO","SM","DEV"],time:"3",unit:"h"}
+};
+const hintTexts={
+position:{
+ product:"El trabajo pendiente del producto existe antes de planificar un ciclo y alimenta esa planificación.",
+ planning:"Busca el evento que abre el ciclo y en el que se decide por qué, qué y cómo trabajar.",
+ sprintbacklog:"Hay un artefacto que nace de la planificación y guía el trabajo durante el ciclo.",
+ sprint:"El ciclo contiene el trabajo y los demás eventos; debe quedar en el centro del proceso.",
+ daily:"Hay una inspección breve y frecuente que ocurre dentro del ciclo, no después de él.",
+ increment:"El resultado utilizable aparece como consecuencia del trabajo realizado durante el ciclo.",
+ review:"Antes de mejorar la forma de trabajar, se inspecciona con interesados el resultado obtenido.",
+ retro:"El evento de mejora del equipo cierra el ciclo y alimenta la forma de trabajar del siguiente.",
+ refine:"Esta actividad no es un evento: trabaja de forma continua sobre la lista de necesidades del producto."
+},
+definition:{
+ product:"La definición correcta de este artefacto habla de una lista ordenada y emergente, no de un plan del ciclo.",
+ planning:"La definición de este evento debe responder a las tres preguntas: por qué, qué y cómo.",
+ sprintbacklog:"Este artefacto combina un objetivo, elementos seleccionados y el plan para realizarlos.",
+ sprint:"Busca una definición que lo describa como contenedor de los demás eventos.",
+ daily:"Su propósito es inspeccionar el progreso hacia el objetivo y adaptar el plan, no informar a un jefe.",
+ increment:"La definición correcta exige que el resultado sea utilizable y cumpla la Definition of Done.",
+ review:"Aquí se inspecciona el resultado junto con interesados y se consideran adaptaciones.",
+ retro:"Aquí no se inspecciona el producto sino la forma de trabajar, buscando calidad y eficacia.",
+ refine:"La definición adecuada habla de descomponer y concretar elementos de forma continua."
+},
+actors:{
+ planning:"En la planificación necesita participar todo el Scrum Team: quien maximiza valor, quien facilita Scrum y quienes harán el trabajo.",
+ sprint:"El Sprint pertenece al Scrum Team completo; los interesados no forman parte de él.",
+ daily:"Este evento está diseñado específicamente para quienes construyen el incremento; no es una reunión de seguimiento del jefe.",
+ review:"Este es el evento donde la colaboración con los interesados externos resulta especialmente importante.",
+ retro:"La mejora de la forma de trabajar corresponde al Scrum Team, no a los interesados externos."
+},
+time:{
+ planning:"Es el evento con el time-box máximo más largo de los eventos que ocurren una sola vez por Sprint.",
+ sprint:"La Guía Scrum fija como límite un mes; en esta actividad lo aproximamos a cuatro semanas.",
+ daily:"Es deliberadamente muy breve y su duración se expresa en minutos, no en horas.",
+ review:"Su máximo para un Sprint de un mes es la mitad del máximo de la planificación.",
+ retro:"Su máximo para un Sprint de un mes es una hora menos que el de la Review."
+}
+};
+
+const KEY="scrum-mastermind-v3";
+let selectedConcept=null,selectedDef=null;
+let state={mode:"normal",attempts:0,hints:0,conceptPos:{},defPos:{},actors:{},times:{},conceptOrder:[],defOrder:[],lastResult:null};
+
+function shuffled(ids){
+ let a=[...ids];
+ for(let i=a.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}
+ return a;
+}
+function basePoints(){return state.mode==="hard"?1100:1000}
+function points(){return Math.max(0,basePoints()-Math.max(0,state.attempts-1)*40-state.hints*75)}
+function save(){localStorage.setItem(KEY,JSON.stringify(state));updateHUD()}
+function load(){
+ const raw=localStorage.getItem(KEY);
+ if(raw){
+  try{const x=JSON.parse(raw);state={...state,...x};
+   document.getElementById("resumeNotice").style.display="block";
+  }catch(e){}
+ }
+ if(!state.conceptOrder?.length) state.conceptOrder=shuffled(concepts.map(x=>x[0]));
+ if(!state.defOrder?.length) state.defOrder=shuffled(defs.map(x=>x[0]));
+}
+function updateHUD(){
+ document.getElementById("attempts").textContent=state.attempts;
+ document.getElementById("hints").textContent=state.hints;
+ document.getElementById("points").textContent=points();
+ document.getElementById("mode").value=state.mode;
+}
+function createSlot(id){
+ let d=document.createElement("div");d.id=id;d.className="slot"+(id==="refine"?" wide":"")+(id==="daily"?" daily":"");
+ let extra="";
+ if(meta[id]){
+  extra=`<div class="actors">${["PO","SM","DEV","STK"].map(a=>`<label><input type="checkbox" value="${a}"> ${a}</label>`).join("")}</div>
+  <div class="timeRow">${id==="daily"?"":"máx. "}<input class="time" inputmode="numeric" maxlength="2"> ${meta[id].unit}</div>`;
+ }
+ d.innerHTML=`<div class="drop empty conceptdrop" data-slot="${id}" draggable="true">Concepto</div>
+ <div class="defdrop empty" data-slot="${id}" draggable="true">Definición</div>${extra}`;
+
+ const cd=d.querySelector(".conceptdrop"), dd=d.querySelector(".defdrop");
+ cd.onclick=()=>selectedConcept&&placeConcept(selectedConcept,id);
+ dd.onclick=()=>selectedDef&&placeDef(selectedDef,id);
+
+ cd.ondragstart=e=>{
+  if(!cd.dataset.piece){e.preventDefault();return}
+  e.dataTransfer.setData("text/concept",cd.dataset.piece);
+  e.dataTransfer.setData("text/origin",id);
+ };
+ dd.ondragstart=e=>{
+  if(!dd.dataset.piece){e.preventDefault();return}
+  e.dataTransfer.setData("text/definition",dd.dataset.piece);
+  e.dataTransfer.setData("text/origin",id);
+ };
+ cd.ondragover=dd.ondragover=e=>e.preventDefault();
+ cd.ondrop=e=>{e.preventDefault();placeConcept(e.dataTransfer.getData("text/concept"),id,e.dataTransfer.getData("text/origin"))};
+ dd.ondrop=e=>{e.preventDefault();placeDef(e.dataTransfer.getData("text/definition"),id,e.dataTransfer.getData("text/origin"))};
+
+ d.querySelectorAll('input[type=checkbox]').forEach(inp=>inp.onchange=()=>{
+  state.actors[id]=[...d.querySelectorAll('input:checked')].map(x=>x.value);save();
+ });
+ const ti=d.querySelector(".time"); if(ti) ti.oninput=()=>{state.times[id]=ti.value;save()};
+ return d;
+}
+concepts.forEach(([id])=>document.getElementById("board").appendChild(createSlot(id)));
+
+function renderBanks(){
+ const cb=document.getElementById("conceptBank");cb.innerHTML="";
+ state.conceptOrder.forEach(id=>{
+  const name=concepts.find(x=>x[0]===id)[1],e=document.createElement("div");
+  e.className="piece"+(selectedConcept===id?" selected":"");
+  if(Object.values(state.conceptPos).includes(id))e.classList.add("placed");
+  e.textContent=name;e.draggable=true;e.ondragstart=x=>x.dataTransfer.setData("text/concept",id);
+  e.onclick=()=>{selectedConcept=selectedConcept===id?null:id;renderBanks()};cb.appendChild(e);
+ });
+ const db=document.getElementById("defBank");db.innerHTML="";
+ state.defOrder.forEach(id=>{
+  const txt=defs.find(x=>x[0]===id)[1],e=document.createElement("div");
+  e.className="piece defpiece"+(selectedDef===id?" selected":"");
+  if(Object.values(state.defPos).includes(id))e.classList.add("placed");
+  e.textContent=txt;e.draggable=true;e.ondragstart=x=>x.dataTransfer.setData("text/definition",id);
+  e.onclick=()=>{selectedDef=selectedDef===id?null:id;renderBanks()};db.appendChild(e);
+ });
+}
+function placeConcept(piece,target,origin=""){
+ if(!piece)return;
+ let oldSlot=Object.keys(state.conceptPos).find(k=>state.conceptPos[k]===piece);
+ let displaced=state.conceptPos[target];
+ if(oldSlot && oldSlot!==target){
+   if(displaced) state.conceptPos[oldSlot]=displaced; else delete state.conceptPos[oldSlot];
+ }
+ state.conceptPos[target]=piece;selectedConcept=null;paint();save();
+}
+function placeDef(piece,target,origin=""){
+ if(!piece)return;
+ let oldSlot=Object.keys(state.defPos).find(k=>state.defPos[k]===piece);
+ let displaced=state.defPos[target];
+ if(oldSlot && oldSlot!==target){
+   if(displaced) state.defPos[oldSlot]=displaced; else delete state.defPos[oldSlot];
+ }
+ state.defPos[target]=piece;selectedDef=null;paint();save();
+}
+function paint(){
+ concepts.forEach(([id])=>{
+  const s=document.getElementById(id),cp=state.conceptPos[id],dp=state.defPos[id];
+  const cd=s.querySelector(".conceptdrop"),dd=s.querySelector(".defdrop");
+  if(cp){cd.textContent=concepts.find(x=>x[0]===cp)[1];cd.dataset.piece=cp;cd.classList.remove("empty")}
+  else{cd.textContent="Concepto";delete cd.dataset.piece;cd.classList.add("empty")}
+  if(dp){dd.textContent=defs.find(x=>x[0]===dp)[1];dd.dataset.piece=dp;dd.classList.remove("empty")}
+  else{dd.textContent="Definición";delete dd.dataset.piece;dd.classList.add("empty")}
+  if(meta[id]){
+   s.querySelectorAll('input[type=checkbox]').forEach(x=>x.checked=(state.actors[id]||[]).includes(x.value));
+   s.querySelector(".time").value=state.times[id]||"";
+  }
+ });
+ renderBanks();updateHUD();
+}
+function same(a,b){return a.length===b.length&&a.every(x=>b.includes(x))}
+function errors(){
+ let out=[];
+ concepts.forEach(([id])=>{
+  if((state.conceptPos[id]||"")!==id)out.push({id,type:"position"});
+  if((state.defPos[id]||"")!==id)out.push({id,type:"definition"});
+  if(meta[id]){
+   if(!same(state.actors[id]||[],meta[id].actors))out.push({id,type:"actors"});
+   if((state.times[id]||"").trim()!==meta[id].time)out.push({id,type:"time"});
+  }
+ });return out;
+}
+function checkGame(){
+ state.attempts++;let es=errors();state.lastResult={date:new Date().toISOString(),errors:es.length};save();
+ let r=document.getElementById("result");r.classList.add("show");
+ if(!es.length){
+  r.innerHTML=`<b>🏆 ¡Resuelto!</b> ${state.attempts} intento(s), ${state.hints} pista(s), <b>${points()} puntos</b>.<br>
+  <span class="small">Este resultado y todos los intentos permanecen guardados en este navegador. Haz una captura para entregarlo.</span>`;
+ }else if(state.mode==="hard"){
+  r.innerHTML=`<b>Modo difícil · intento ${state.attempts}</b><br>
+  Errores pendientes: <b>${es.length}</b>
+  <br><span class="small">No se indica de qué tipo son ni dónde están. Revisad vuestra hipótesis o gastad una pista adaptativa.</span>`;
+ }else{
+  let p=es.filter(x=>x.type==="position").length,d=es.filter(x=>x.type==="definition").length,
+      a=es.filter(x=>x.type==="actors").length,t=es.filter(x=>x.type==="time").length;
+  r.innerHTML=`<b>Modo normal · intento ${state.attempts}</b><br>
+  Errores de colocación: <b>${p}</b> · Definiciones: <b>${d}</b> · Participantes: <b>${a}</b> · Duraciones: <b>${t}</b>
+  <br><span class="small">Sabéis en qué categorías buscar, pero no en qué casillas.</span>`;
+ }
+}
+function giveHint(){
+ let es=errors(),box=document.getElementById("hintbox");box.classList.add("show");
+ if(!es.length){box.innerHTML="<b>No necesitáis ninguna pista:</b> la construcción ya es correcta.";return}
+ let filled=es.filter(e=> e.type==="position"?!!state.conceptPos[e.id] : e.type==="definition"?!!state.defPos[e.id] : true);
+ if(!filled.length)filled=es;
+ let e=filled[state.hints%filled.length];state.hints++;save();
+ box.innerHTML=`<b>💡 Pista ${state.hints} (−75):</b> ${hintTexts[e.type][e.id]}`;
+}
+function changeMode(){
+ const newMode=document.getElementById("mode").value;
+ if(state.attempts>0 && newMode!==state.mode){
+   alert("El modo queda bloqueado después del primer intento.");
+   document.getElementById("mode").value=state.mode;
+   return;
+ }
+ state.mode=newMode; save();
+}
+function resetGame(confirmIt=true){
+ if(confirmIt && !confirm("¿Reiniciar la partida? Se borrará el progreso guardado de esta partida."))return;
+ const mode=state.mode;
+ state={mode,attempts:0,hints:0,conceptPos:{},defPos:{},actors:{},times:{},
+        conceptOrder:shuffled(concepts.map(x=>x[0])),defOrder:shuffled(defs.map(x=>x[0])),lastResult:null};
+ localStorage.setItem(KEY,JSON.stringify(state));
+ document.getElementById("result").classList.remove("show");
+ document.getElementById("hintbox").classList.remove("show");
+ document.getElementById("resumeNotice").style.display="none";
+ paint();
+}
+load();paint();
+</script></body></html>
